@@ -6,12 +6,21 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		public $version = 'v1';
 		
 		function __construct() {
+			/**
+			 * Register the class that will handle our custom API endpoints
+			 */
 			if ( ! class_exists( 'UMW_Directory_Rest_Controller' ) ) {
 				require_once( plugin_dir_path( __FILE__ ) . '/class-umw-directory-rest-controller.php' );
 			}
 			
+			/**
+			 * Determine whether this is the main directory site or not
+			 */
 			$this->is_directory_site();
 			
+			/**
+			 * Set up our shortcode
+			 */
 			add_shortcode( 'umw-directory', array( $this, 'do_shortcode' ) );
 			$this->urls = array(
 				'office'     => '/wp-json/wp/v2/office', 
@@ -21,6 +30,14 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			);
 		}
 		
+		/**
+		 * Determine whether or not this is the main directory site
+		 * Set the URL for the main directory site, either way
+		 * If so, set up some API functions
+		 * @uses UMW_Directory_API::$is_directory
+		 * @uses UMW_Directory_API::$directory_url
+		 * @uses UMW_Directory_API::setup_directory_site()
+		 */
 		function is_directory_site() {
 			if ( defined( 'UMW_EMPLOYEE_DIRECTORY' ) && is_numeric( UMW_EMPLOYEE_DIRECTORY ) ) {
 				if ( UMW_EMPLOYEE_DIRECTORY == $GLOBALS['blog_id'] ) {
