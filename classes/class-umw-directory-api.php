@@ -1,33 +1,26 @@
 <?php
 if ( ! class_exists( 'UMW_Directory_API' ) ) {
-	class UMW_Directory_API {
-		public $is_directory = false;
+	class UMW_Directory_API extends Types_Relationship_API {
+		public $is_directory  = false;
 		public $directory_url = null;
-		public $version = 'v1';
+		public $rest_classes  = array();
 		
 		function __construct() {
-			/**
-			 * Register the class that will handle our custom API endpoints
-			 */
-			if ( ! class_exists( 'UMW_Directory_Rest_Controller' ) ) {
-				require_once( plugin_dir_path( __FILE__ ) . '/class-umw-directory-rest-controller.php' );
-			}
-			
 			/**
 			 * Determine whether this is the main directory site or not
 			 */
 			$this->is_directory_site();
 			
+			$this->rest_classes = array(
+				'department-employees' => new UMW_DAPI_Department_Employees, 
+				'building-employees'   => new UMW_DAPI_Building_Employees, 
+				'employee-departments' => new UMW_DAPI_Employee_Departments, 
+			);
+			
 			/**
 			 * Set up our shortcode
 			 */
 			add_shortcode( 'umw-directory', array( $this, 'do_shortcode' ) );
-			$this->urls = array(
-				'office'     => '/wp-json/wp/v2/office', 
-				'department' => '/wp-json/wp/v2/department', 
-				'building'   => '/wp-json/wp/v2/building', 
-				'employee'   => '/wp-json/wp/v2/employee'
-			);
 		}
 		
 		/**
@@ -58,173 +51,49 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 * Set up the API procedures for the directory site
 		 */
 		function setup_directory_site() {
-			/**
-			 * This doesn't seem to do anything, but we tried to whitelist
-			 * 		the meta items we want to retrieve
-			 */
-			add_filter( 'rest_public_meta_keys', array( $this, 'whitelist_custom_post_meta' ) );
-			
 			add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		}
 		
 		function register_routes() {
-			/**
-			 * Set up some custom endpoints for the API to retrieve Types-related posts
-			 */
-			$root = 'umwdir';
-			$version = $this->version;
-			$cb_class = new \UMW_Directory_Rest_Controller;
-			
-			/**
-			 * Set up an endpoint to retrieve employees that belong to a department
-			 * @param int $parent_id the ID of the department
-			 * @param string $slug the slug of the department (if you can't provide the ID)
-			 */
-			register_rest_route( "{$root}/{$version}", '/department/employees', array(
-				array(
-					'methods'         => \WP_REST_Server::READABLE,
-					'callback'        => array( $cb_class, 'get_items' ),
-					'args'            => array(
-						'per_page' => array(
-							'default' => 10,
-							'sanitize_callback' => 'absint',
-						),
-						'page' => array(
-							'default' => 1,
-							'sanitize_callback' => 'absint',
-						),
-						'parent' => array(
-							'default' => 'department',
-							'sanitize_callback' => array( $this, 'valid_post_types' ),
-						),
-						'child' => array( 
-							'default' => 'employee', 
-							'sanitize_callback' => array( $this, 'valid_post_types' ), 
-						), 
-						'interim' => array(
-							'default' => 'office', 
-							'sanitize_callback' => array( $this, 'valid_post_types' ), 
-						), 
-						'parent_id' => array(
-							'default' => 0, 
-							'sanitize_callback' => 'absint', 
-						), 
-						'slug' => array(
-							'default' => false,
-							'sanitize_callback' => 'sanitize_title',
-						)
-					),
-		
-					'permission_callback' => array( $this, 'permissions_check' )
-				),
-			) );
-		}
-		
-		function valid_post_types( $type=null ) {
-			if ( ! in_array( $type, array( 'department', 'employee', 'office', 'building' ) ) )
-				return false;
-			
-			return $type;
-		}
-		
-		function permissions_check() {
-			return true;
-		}
-		
-		function whitelist_custom_post_meta( $keys=array() ) {
-			return array_merge( $keys, array( '_wpcf_belongs_employee_id', '_wpcf_belongs_department_id', '_wpcf_belongs_building_id' ) );
+			foreach ( $this->rest_classes as $c ) {
+				$c->register_routes();
+			}
 		}
 		
 		function do_shortcode( $atts=array() ) {
 			$atts = shortcode_atts( $this->get_defaults(), $atts, 'umw-directory' );
-			/*print( '<pre><code>' );
-			var_dump( $atts );
-			print( '</code></pre>' );
-			wp_die( 'Got this far' );*/
 			
 			if ( ! empty( $atts['department'] ) ) {
-				$meta_key = '_wpcf_belongs_department_id';
-				if ( ! is_numeric( $atts['department'] ) ) {
-					$atts['department'] = $this->get_department_id( $atts['department'] );
-				}
-				if ( empty( $atts['department'] ) )
-					return;
+				$rest_class = $this->rest_classes['department-employees'];
 				
-				$url = untrailingslashit( $this->directory_url ) . '/wp-json/umdir/v1/types-relationship';
+				$url = untrailingslashit( $this->directory_url ) . $rest_class->get_rest_url();
 				$url = add_query_arg( array(
 					'parent_id' => $atts['department'], 
 					'per_page'  => 200, 
 				), $url );
 				
-				$list = wp_remote_request( $url );
+				$employees = @json_decode( wp_remote_request( $url ) );
+				ob_start();
 				print( '<pre><code>' );
-				var_dump( @json_decode( $list ) );
+				var_dump( $employees );
 				print( '</code></pre>' );
-				die();
+				return ob_get_clean();
+			} else if ( ! empty( $atts['building'] ) ) {
+				$rest_class = $this->rest_classes['building-employees'];
 				
-				$list = $this->retrieve_posts( 'office', $meta_key, $atts['department'] );
-				print( '<pre><code>' );
-				var_dump( $list );
-				print( '</code></pre>' );
-				die();
-				if ( empty( $list ) || ! is_array( $list ) ) {
-					return false;
-				}
+				$url = untrailingslashit( $this->directory_url ) . $rest_class->get_rest_url();
+				$url = add_query_arg( array( 
+					'parent_id' => $atts['building'], 
+					'per_page'  => 200, 
+				), $url );
 				
-				$emps = array();
-				foreach ( $list as $o ) {
-					$emps[] = $o->id;
-				}
-				
-				$employees = $this->retrieve_posts( 'employee', 'include', $emps );
+				$employees = @json_decode( wp_remote_request( $url ) );
 				ob_start();
 				print( '<pre><code>' );
 				var_dump( $employees );
 				print( '</code></pre>' );
 				return ob_get_clean();
 			}
-		}
-		
-		function get_department_id( $name ) {
-			$depts = $this->retrieve_posts( 'department' );
-			/*print( '<pre><code>' );
-			var_dump( $depts );
-			print( '</code></pre>' );*/
-			if ( empty( $depts ) || ! is_array( $depts ) ) {
-				return false;
-			}
-			
-			foreach ( $depts as $dept ) {
-				/*print( '<pre><code>' );
-				var_dump( $dept );
-				print( '</code></pre>' );*/
-				
-				if ( $dept->slug == $name || $dept->title->rendered == $name )
-					return $dept->id;
-			}
-			
-			return false;
-		}
-		
-		function retrieve_posts( $type='', $key='', $val='' ) {
-			if ( empty( $type ) )
-				return false;
-			
-			$url = sprintf( '%s%s', untrailingslashit( $this->directory_url ), $this->urls[$type] );
-			if ( ! empty( $key ) && ! empty( $val ) ) {
-				if ( substr( $key, 0, 1 ) == '_' ) {
-					$url = add_query_arg( 'meta_key', $key, $url );
-					$url = add_query_arg( 'meta_value', $val, $url );
-				} else {
-					$url = add_query_arg( $key, $val, $url );
-				}
-			}
-			$url = add_query_arg( 'per_page', 999, $url );
-			
-			print( '<pre><code>' . $url . '</code></pre>' );
-			
-			$done = wp_remote_request( $url );
-			return @json_decode( wp_remote_retrieve_body( $done ) );
 		}
 		
 		function get_defaults() {
@@ -235,5 +104,106 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 				'username'   => null, 
 			);
 		}
+	}
+}
+
+class UMW_DAPI_Department_Employees extends Types_Relationship_API {
+	function __construct() {
+		$this->route = 'department/employee';
+		$this->parent_type = 'department';
+		$this->child_type = 'employee';
+		$this->interim_type = 'office';
+	}
+	
+	function add_meta_data( $data, $post, $final=false ) {
+		if ( $post->post_type != $this->child_type )
+			return $data;
+		
+		$post_id = $post->ID;
+		$rt = array();
+		/**
+		 * General employee information
+		 */
+		$keys = array( 'blurb', 'email', 'phone', 'website', 'photo', 'room', 'username', 'biography' );
+		$rt['job-title'] = get_post_meta( $post_id, '_wpcf_title', true );
+		foreach ( $keys as $key ) {
+			$rt[$key] = get_post_meta( $post_id, sprintf( '_wpcf_%s', $key ), true );
+		}
+		/**
+		 * Advanced employee information
+		 */
+		$keys = array( 
+			'degrees', 
+			'ph-d', 
+			'facebook', 
+			'twitter', 
+			'instagram', 
+			'linkedin', 
+			'academia', 
+			'google-plus', 
+			'tumblr', 
+			'pinterest', 
+			'vimeo', 
+			'flickr', 
+			'youtube', 
+		);
+		foreach ( $keys as $key ) {
+			$rt[$key] = get_post_meta( $post_id, sprintf( '_wpcf_%s', $key ), true );
+		}
+		
+		foreach ( $rt as $k=>$v ) {
+			switch( $k ) {
+				case 'email' : 
+					$rt[$k] = is_email( $v );
+					break;
+				case 'room' : 
+				case 'blurb' : 
+				case 'biography' : 
+				case 'username' : 
+				case 'degrees' : 
+					$rt[$k] = esc_attr( $v );
+					break;
+				case 'ph-d' : 
+					$rt[$k] = absint( $v );
+					break;
+				default : 
+					$rt[$k] = esc_url( $v );
+					break;
+			}
+		}
+		
+		return array_merge( $rt, $data );
+	}
+}
+
+class UMW_DAPI_Building_Employees extends Types_Relationship_API {
+	function __construct() {
+		$this->route = 'building/employee';
+		$this->parent_type = 'building';
+		$this->child_type = 'employee';
+		$this->interim_type = null;
+	}
+	
+	function add_meta_data( $data, $post ) {
+		if ( $post->post_type != $this->parent_type )
+			return $data;
+		
+		return $data;
+	}
+}
+
+class UMW_DAPI_Employee_Departments extends Types_Relationship_API {
+	function __construct() {
+		$this->route = 'employee/building';
+		$this->parent_type = 'employee';
+		$this->child_type = 'building';
+		$this->interim_type = 'office';
+	}
+	
+	function add_meta_data( $data, $post ) {
+		if ( $post->post_type != $this->parent_type )
+			return $data;
+		
+		return $data;
 	}
 }
