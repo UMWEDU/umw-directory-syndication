@@ -1,8 +1,4 @@
 <?php
-if ( ! class_exists( 'UMW_Directory_Rest_Controller' ) ) {
-	require_once( plugin_dir_path( __FILE__ ) . '/class-umw-directory-rest-controller.php' );
-}
-
 if ( ! class_exists( 'UMW_Directory_API' ) ) {
 	class UMW_Directory_API {
 		public $is_directory = false;
@@ -10,6 +6,10 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		public $version = 'v1';
 		
 		function __construct() {
+			if ( ! class_exists( 'UMW_Directory_Rest_Controller' ) ) {
+				require_once( plugin_dir_path( __FILE__ ) . '/class-umw-directory-rest-controller.php' );
+			}
+			
 			$this->is_directory_site();
 			
 			add_shortcode( 'umw-directory', array( $this, 'do_shortcode' ) );
@@ -47,12 +47,16 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			 */
 			add_filter( 'rest_public_meta_keys', array( $this, 'whitelist_custom_post_meta' ) );
 			
+			add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		}
+		
+		function register_routes() {
 			/**
 			 * Set up some custom endpoints for the API to retrieve Types-related posts
 			 */
 			$root = 'umwdir';
 			$version = $this->version;
-			$cb_class = \UMW_Directory_Rest_Controller;
+			$cb_class = new \UMW_Directory_Rest_Controller;
 			
 			/**
 			 * Set up an endpoint to retrieve employees that belong to a department

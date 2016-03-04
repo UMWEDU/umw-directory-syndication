@@ -1,8 +1,6 @@
 <?php
 class UMW_Directory_Rest_Controller extends \WP_REST_Posts_Controller {
-	public function __construct( $post_type, $base ) {
-		$this->post_type = $post_type;
-		$this->base = $base;
+	public function __construct() {
 	}
 	
 	protected function query_args( $params ) {
@@ -87,14 +85,13 @@ class UMW_Directory_Rest_Controller extends \WP_REST_Posts_Controller {
 				'value' => $params['parent_id'], 
 			) );
 			
-			$q = new WP_Query;
-			$r = $q->query( $args );
+			$q = new WP_Query( $args );
 			$ids = array();
 			global $post;
-			if ( $r->have_posts() ) : while ( $r->have_posts() ) : $r->the_post(); {
-				setup_postdata();
+			if ( $q->have_posts() ) : while ( $q->have_posts() ) : $q->the_post();
+				setup_postdata( $post );
 				$ids[] = get_post_meta( sprintf( '_wpcf_belongs_%s_id', $params['child'] ), true );
-			}
+			endwhile; endif;
 			wp_reset_postdata();
 			wp_reset_query();
 			
