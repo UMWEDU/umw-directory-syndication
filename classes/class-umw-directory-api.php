@@ -1,6 +1,6 @@
 <?php
 if ( ! class_exists( 'UMW_Directory_API' ) ) {
-	class UMW_Directory_API extends Types_Relationship_API {
+	class UMW_Directory_API {
 		public $is_directory  = false;
 		public $directory_url = null;
 		public $rest_classes  = array();
@@ -113,66 +113,40 @@ class UMW_DAPI_Department_Employees extends Types_Relationship_API {
 		$this->parent_type = 'department';
 		$this->child_type = 'employee';
 		$this->interim_type = 'office';
+		
+		parent::__construct();
 	}
 	
-	function add_meta_data( $data, $post, $final=false ) {
+	function add_meta_data( $data, $post ) {
 		if ( $post->post_type != $this->child_type )
 			return $data;
 		
-		$post_id = $post->ID;
-		$rt = array();
-		/**
-		 * General employee information
-		 */
-		$keys = array( 'blurb', 'email', 'phone', 'website', 'photo', 'room', 'username', 'biography' );
-		$rt['job-title'] = get_post_meta( $post_id, '_wpcf_title', true );
-		foreach ( $keys as $key ) {
-			$rt[$key] = get_post_meta( $post_id, sprintf( '_wpcf_%s', $key ), true );
-		}
-		/**
-		 * Advanced employee information
-		 */
-		$keys = array( 
-			'degrees', 
-			'ph-d', 
-			'facebook', 
-			'twitter', 
-			'instagram', 
-			'linkedin', 
-			'academia', 
-			'google-plus', 
-			'tumblr', 
-			'pinterest', 
-			'vimeo', 
-			'flickr', 
-			'youtube', 
+		$rt = array(
+			'blurb' => 'wpcf-blurb', 
+			'email' => 'wpcf-email', 
+			'phone' => 'wpcf-phone', 
+			'website' => 'wpcf-website', 
+			'photo' => 'wpcf-photo', 
+			'room' => 'wpcf-room', 
+			'username' => 'wpcf-username', 
+			'biography' => 'wpcf-biography', 
+			'job-title' => 'wpcf-title', 
+			'degrees' => 'wpcf-degrees', 
+			'ph-d' => 'wpcf-ph-d', 
+			'facebook' => 'wpcf-facebook', 
+			'twitter' => 'wpcf-twitter', 
+			'instagram' => 'wpcf-instagram', 
+			'linkedin' => 'wpcf-linkedin', 
+			'academia' => 'wpcf-academia', 
+			'google-plus' => 'wpcf-google-plus', 
+			'tumblr' => 'wpcf-tumblr', 
+			'pinterest' => 'wpcf-pinterest', 
+			'vimeo' => 'wpcf-vimeo', 
+			'flickr' => 'wpcf-flickr', 
+			'youtube' => 'wpcf-youtube', 
 		);
-		foreach ( $keys as $key ) {
-			$rt[$key] = get_post_meta( $post_id, sprintf( '_wpcf_%s', $key ), true );
-		}
 		
-		foreach ( $rt as $k=>$v ) {
-			switch( $k ) {
-				case 'email' : 
-					$rt[$k] = is_email( $v );
-					break;
-				case 'room' : 
-				case 'blurb' : 
-				case 'biography' : 
-				case 'username' : 
-				case 'degrees' : 
-					$rt[$k] = esc_attr( $v );
-					break;
-				case 'ph-d' : 
-					$rt[$k] = absint( $v );
-					break;
-				default : 
-					$rt[$k] = esc_url( $v );
-					break;
-			}
-		}
-		
-		return array_merge( $rt, $data );
+		return array_merge( $data, $rt );
 	}
 }
 
@@ -182,6 +156,8 @@ class UMW_DAPI_Building_Employees extends Types_Relationship_API {
 		$this->parent_type = 'building';
 		$this->child_type = 'employee';
 		$this->interim_type = null;
+		
+		parent::__construct();
 	}
 	
 	function add_meta_data( $data, $post ) {
@@ -198,6 +174,8 @@ class UMW_DAPI_Employee_Departments extends Types_Relationship_API {
 		$this->parent_type = 'employee';
 		$this->child_type = 'building';
 		$this->interim_type = 'office';
+		
+		parent::__construct();
 	}
 	
 	function add_meta_data( $data, $post ) {
