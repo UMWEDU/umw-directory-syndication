@@ -11,16 +11,29 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			 */
 			$this->is_directory_site();
 			
-			$this->rest_classes = array(
-				'department-employees' => new UMW_DAPI_Department_Employees, 
-				'building-employees'   => new UMW_DAPI_Building_Employees, 
-				'employee-departments' => new UMW_DAPI_Employee_Departments, 
-			);
+			$this->setup_rest_classes();
 			
 			/**
 			 * Set up our shortcode
 			 */
 			add_shortcode( 'umw-directory', array( $this, 'do_shortcode' ) );
+		}
+		
+		/**
+		 * Register and include all of the REST classes we'll need
+		 */
+		function setup_rest_classes() {
+			$this->rest_classes = array(
+				'department-employees' => 'UMW_DAPI_Department_Employees', 
+				'building-employees'   => 'UMW_DAPI_Building_Employees', 
+				'employee-departments' => 'UMW_DAPI_Employee_Departments', 
+			);
+			
+			foreach ( $this->rest_classes as $k => $c ) {
+				if ( ! class_exists( $c ) )
+					require_once( plugin_dir_path( __FILE__ ) . '/inc/class-' . strtolower( str_replace( '_', '-', $c ) ) . '.php' );
+				$this->rest_classes[$k] = new $c;
+			}
 		}
 		
 		/**
@@ -54,12 +67,18 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		}
 		
+		/**
+		 * Call the appropriate method to register the necessary REST API routes
+		 */
 		function register_routes() {
 			foreach ( $this->rest_classes as $c ) {
 				$c->register_routes();
 			}
 		}
 		
+		/**
+		 * Execute the shortcode itself
+		 */
 		function do_shortcode( $atts=array() ) {
 			$atts = shortcode_atts( $this->get_defaults(), $atts, 'umw-directory' );
 			
@@ -67,12 +86,21 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 				$rest_class = $this->rest_classes['department-employees'];
 				
 				$url = untrailingslashit( $this->directory_url ) . $rest_class->get_rest_url();
-				$url = add_query_arg( array(
-					'parent_id' => $atts['department'], 
-					'per_page'  => 200, 
-				), $url );
+				if ( ! is_numeric( $atts['department'] ) ) {
+					$url = add_query_arg( array(
+						'slug' => $atts['department'], 
+						'per_page'  => 200, 
+					), $url );
+				} else {
+					$url .= '/' . intval( $atts['department'] );
+					$url = add_query_arg( 'per_page', 200, $url );
+				}
 				
-				$employees = @json_decode( wp_remote_request( $url ) );
+				print( '<pre><code>' );
+				var_dump( $url );
+				print( '</code></pre>' );
+				
+				$employees = @json_decode( wp_remote_retrieve_body( wp_remote_request( $url ) ) );
 				ob_start();
 				print( '<pre><code>' );
 				var_dump( $employees );
@@ -83,7 +111,7 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 				
 				$url = untrailingslashit( $this->directory_url ) . $rest_class->get_rest_url();
 				$url = add_query_arg( array( 
-					'parent_id' => $atts['building'], 
+					'parent' => $atts['building'], 
 					'per_page'  => 200, 
 				), $url );
 				
@@ -96,92 +124,16 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			}
 		}
 		
+		/**
+		 * Retrieve the default shortcode parameters
+		 */
 		function get_defaults() {
 			return array(
-				'fields'     => 'post_title, _wpcf_title, _wpcf_email', 
+				'type'       => 'summary', 
 				'department' => null, 
 				'building'   => null, 
 				'username'   => null, 
 			);
 		}
-	}
-}
-
-class UMW_DAPI_Department_Employees extends Types_Relationship_API {
-	function __construct() {
-		$this->route = 'department/employee';
-		$this->parent_type = 'department';
-		$this->child_type = 'employee';
-		$this->interim_type = 'office';
-		
-		parent::__construct();
-	}
-	
-	function add_meta_data( $data, $post ) {
-		if ( $post->post_type != $this->child_type )
-			return $data;
-		
-		$rt = array(
-			'blurb' => 'wpcf-blurb', 
-			'email' => 'wpcf-email', 
-			'phone' => 'wpcf-phone', 
-			'website' => 'wpcf-website', 
-			'photo' => 'wpcf-photo', 
-			'room' => 'wpcf-room', 
-			'username' => 'wpcf-username', 
-			'biography' => 'wpcf-biography', 
-			'job-title' => 'wpcf-title', 
-			'degrees' => 'wpcf-degrees', 
-			'ph-d' => 'wpcf-ph-d', 
-			'facebook' => 'wpcf-facebook', 
-			'twitter' => 'wpcf-twitter', 
-			'instagram' => 'wpcf-instagram', 
-			'linkedin' => 'wpcf-linkedin', 
-			'academia' => 'wpcf-academia', 
-			'google-plus' => 'wpcf-google-plus', 
-			'tumblr' => 'wpcf-tumblr', 
-			'pinterest' => 'wpcf-pinterest', 
-			'vimeo' => 'wpcf-vimeo', 
-			'flickr' => 'wpcf-flickr', 
-			'youtube' => 'wpcf-youtube', 
-		);
-		
-		return array_merge( $data, $rt );
-	}
-}
-
-class UMW_DAPI_Building_Employees extends Types_Relationship_API {
-	function __construct() {
-		$this->route = 'building/employee';
-		$this->parent_type = 'building';
-		$this->child_type = 'employee';
-		$this->interim_type = null;
-		
-		parent::__construct();
-	}
-	
-	function add_meta_data( $data, $post ) {
-		if ( $post->post_type != $this->parent_type )
-			return $data;
-		
-		return $data;
-	}
-}
-
-class UMW_DAPI_Employee_Departments extends Types_Relationship_API {
-	function __construct() {
-		$this->route = 'employee/building';
-		$this->parent_type = 'employee';
-		$this->child_type = 'building';
-		$this->interim_type = 'office';
-		
-		parent::__construct();
-	}
-	
-	function add_meta_data( $data, $post ) {
-		if ( $post->post_type != $this->parent_type )
-			return $data;
-		
-		return $data;
 	}
 }
