@@ -21,26 +21,26 @@ Additionally, some of the more complex routes that are registered and set up thr
 = Retrieving Individual Employees =
 There are three different ways you can retrieve individual employees.
 
-*By Username*
+**By Username**
 If you have the employee's SAM Account Name (Banner/AD username), you can retrieve information about the employee by using a URL in the structure of `/wp-json/wp/v2/employee/username/`
 
 _This is a route that is registered and set up through this plugin._
 
-*By Post ID*
+**By Post ID**
 If you have the WordPress post ID for the employee's entry by using a URL in the structure of `/wp-json/wp/v2/employee/`
 
 _This is a route that is registered and set up natively through the REST API_
 
-*By Searching*
+**By Searching**
 If you do not have the WordPress post ID or the user's SAM Account Name, you can attempt to search for the employee by providing whatever information you do have, and using a search with a URL in the structure of `/wp-json/swp_api/search?post_type=employee&s=`.
 
 _This is a route implemented by a 3rd-party plugin called [SearchWP API](https://github.com/CalderaWP/searchwp-api-route). More documentation about this search functionality can be found there._
 
 = Retrieving All Employees in a Department or Building =
-*By Post ID*
+**By Post ID**
 If you have the WordPress post ID of the department or building, you can retrieve the list of employees by using a URL structure like `/wp-json/types/relationships/v1/department/employee/<id>` or `/wp-json/types/relationships/v1/building/employee/<id>`
 
-*By Post Path*
+**By Post Path**
 If you do not have the WordPress post ID, but you do have the post slug (for instance, the slug for the Admissions department is "admissions"), you can use a URL structure like `/wp-json/types/relationships/v1/department/employee?slug=<slug>` or `/wp-json/types/relationships/v1/building/employee?slug=<slug>`.
 
 The underlying function that retrieves the department/building is the native WordPress get_page_by_path() function, which, for hierarchical post types, requires the hierarchy to be in tact when searching. Therefore, if you are trying to retrieve information about a building/department that is nested under another building/department, you will need the full path of the page that follows `/directory/department/` or `/directory/building/`. For instance, the URL for Alumni Relations is `/directory/department/advancement/advancement/alumni-relations/`, so the "path" or "slug" you'll need is `advancement/advancement/alumni-relations`.
@@ -49,10 +49,10 @@ The underlying function that retrieves the department/building is the native Wor
 
 You can also use the native WP REST API functionality to retrieve general information about an individual building or department. This is not new functionality implemented by this plugin, but it is worth noting within this documentation, regardless.
 
-*By Post ID*
+**By Post ID**
 If you have the WordPress post ID for the department or building you're searching for, you can use a URL structure like `/wp-json/wp/v2/department/<id>` or `/wp-json/wp/v2/building/<id>`.
 
-*By Searching*
+**By Searching**
 If you do not have the WordPress post ID, you can attempt to search for the department or building by using the functionality _implemented by the [SearchWP API plugin](https://github.com/CalderaWP/searchwp-api-route)_. To do so, you would use a URL structure like `/wp-json/swp_api/search?post_type=building&s=<search term>` or `/wp-json/swp_api/search?post_type=department&s=<search term>`.
 
 Once you have retrieved a list of the departments/buildings that match your search criteria, it may be necessary to process that list of items in order to find the ID of the individual department/building you would like to use (for instance, if you are planning to use that information to then retrieve a list of employees related to that item).
