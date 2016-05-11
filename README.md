@@ -45,8 +45,10 @@ _This is a route implemented by a 3rd-party plugin called [SearchWP API](https:/
 *By Post ID*
 If you have the WordPress post ID of the department or building, you can retrieve the list of employees by using a URL structure like `/wp-json/types/relationships/v1/department/employee/<id>` or `/wp-json/types/relationships/v1/building/employee/<id>`
 
-*By Post Slug*
+*By Post Path*
 If you do not have the WordPress post ID, but you do have the post slug (for instance, the slug for the Admissions department is "admissions"), you can use a URL structure like `/wp-json/types/relationships/v1/department/employee?slug=<slug>` or `/wp-json/types/relationships/v1/building/employee?slug=<slug>`.
+
+The underlying function that retrieves the department/building is the native WordPress get_page_by_path() function, which, for hierarchical post types, requires the hierarchy to be in tact when searching. Therefore, if you are trying to retrieve information about a building/department that is nested under another building/department, you will need the full path of the page that follows `/directory/department/` or `/directory/building/`. For instance, the URL for Alumni Relations is `/directory/department/advancement/advancement/alumni-relations/`, so the "path" or "slug" you'll need is `advancement/advancement/alumni-relations`.
 
 ### Retrieving General Building or Department Information ###
 

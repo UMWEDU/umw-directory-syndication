@@ -28,12 +28,15 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		
 		function _add_extra_api_post_type_arguments() {
 			global $wp_post_types;
-			if ( ! array_key_exists( 'employee', $wp_post_types ) )
-				return;
 			
-			$wp_post_types['employee']->show_in_rest = true;
-			$wp_post_types['employee']->rest_base = 'employee';
-			$wp_post_types['employee']->rest_controller_class = 'WP_REST_Posts_Controller';
+			foreach ( array( 'employee', 'building', 'department' ) as $post_type ) {
+				if ( ! array_key_exists( $post_type, $wp_post_types ) )
+					continue;
+				
+				$wp_post_types[$post_type]->show_in_rest = true;
+				$wp_post_types[$post_type]->rest_base = $post_type;
+				$wp_post_types[$post_type]->rest_controller_class = 'WP_REST_Posts_Controller';
+			}
 		}
 		
 		/**
