@@ -1,29 +1,22 @@
-# UMW Directory Syndication #
-**Contributors:** cgrymala
-
-**Tags:** rest api, syndication, directory, umw
-
-**Donate link:** http://giving.umw.edu/
-
-**Requires at least:** 4.0
-
-**Tested up to:** 4.5
-
-**Stable tag:** 0.1
-
-**License:** GPL v2 or later
-
+=== UMW Directory Syndication ===
+Contributors: cgrymala
+Tags: rest api, syndication, directory, umw
+Donate link: http://giving.umw.edu/
+Requires at least: 4.0
+Tested up to: 4.5
+Stable tag: 0.1
+License: GPL v2 or later
 
 This plugin utilizes the WP REST API to allow syndication of employee directory information.
 
-## Description ##
+== Description ==
 This plugin implements a handful of custom REST API endpoints, as well as a new shortcode  allowing syndication of directory information.
 
 Most of the features outlined in this documentation are features of this plugin specifically. However, there is also some documentation that outlines native features of the [WP REST API](http://v2.wp-api.org/) and there is limited documentation related to a [3rd-party plugin called SearchWP API](https://github.com/CalderaWP/searchwp-api-route) that allows you to search using the API.
 
 Additionally, some of the more complex routes that are registered and set up through this plugin are dependent on another plugin called [Types Relationship API](https://github.com/UMWEDU/types-relationship-api).
 
-### Retrieving Individual Employees ###
+= Retrieving Individual Employees =
 There are three different ways you can retrieve individual employees.
 
 *By Username*
@@ -41,14 +34,14 @@ If you do not have the WordPress post ID or the user's SAM Account Name, you can
 
 _This is a route implemented by a 3rd-party plugin called [SearchWP API](https://github.com/CalderaWP/searchwp-api-route). More documentation about this search functionality can be found there._
 
-### Retrieving All Employees in a Department or Building ###
+= Retrieving All Employees in a Department or Building =
 *By Post ID*
 If you have the WordPress post ID of the department or building, you can retrieve the list of employees by using a URL structure like `/wp-json/types/relationships/v1/department/employee/<id>` or `/wp-json/types/relationships/v1/building/employee/<id>`
 
 *By Post Slug*
 If you do not have the WordPress post ID, but you do have the post slug (for instance, the slug for the Admissions department is "admissions"), you can use a URL structure like `/wp-json/types/relationships/v1/department/employee?slug=<slug>` or `/wp-json/types/relationships/v1/building/employee?slug=<slug>`.
 
-### Retrieving General Building or Department Information ###
+= Retrieving General Building or Department Information =
 
 You can also use the native WP REST API functionality to retrieve general information about an individual building or department. This is not new functionality implemented by this plugin, but it is worth noting within this documentation, regardless.
 
@@ -60,7 +53,7 @@ If you do not have the WordPress post ID, you can attempt to search for the depa
 
 Once you have retrieved a list of the departments/buildings that match your search criteria, it may be necessary to process that list of items in order to find the ID of the individual department/building you would like to use (for instance, if you are planning to use that information to then retrieve a list of employees related to that item).
 
-## Installation ##
+== Installation ==
 This plugin should work as a standard plugin, but is intended to act as a mu-plugin.
 
 This plugin is dependent on the [Types Relationship API plugin](https://github.com/UMWEDU/types-relationship-api), so that plugin must be installed (either as a mu-plugin or as an active plugin) before you can activate this plugin.
@@ -69,6 +62,6 @@ To install as a regular plugin, upload the entire `umw-directory-syndication` fo
 
 To install as a mu-plugin, upload the contents of the `umw-directory-syndication` folder to `wp-content/mu-plugins`.
 
-## Changelog ##
-### 0.1 ###
+== Changelog ==
+= 0.1 =
 * First release
