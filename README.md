@@ -17,6 +17,8 @@
 This plugin utilizes the WP REST API to allow syndication of employee directory information.
 
 ## Description ##
+Before starting, it is recommended that you familiarize yourself with the [WP REST API v2 documentation](http://v2.wp-api.org/), as much of that will act as a foundation for using this plugin. In addition, you may want to track the documentation/development of the [SearchWP API plugin](https://github.com/CalderaWP/searchwp-api-route) for reference on using search methods that aren't explicitly included in this plugin.
+
 This plugin implements a handful of custom REST API endpoints, as well as a new shortcode  allowing syndication of directory information.
 
 Most of the features outlined in this documentation are features of this plugin specifically. However, there is also some documentation that outlines native features of the [WP REST API](http://v2.wp-api.org/) and there is limited documentation related to a [3rd-party plugin called SearchWP API](https://github.com/CalderaWP/searchwp-api-route) that allows you to search using the API.
