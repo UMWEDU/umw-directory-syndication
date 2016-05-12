@@ -104,7 +104,7 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 * Register the custom field API endpoints
 		 */
 		function register_rest_fields() {
-			foreach ( array( 'username', 'first-name', 'last-name', 'title', 'email', 'phone', 'office-room-number' ) as $f ) {
+			foreach ( array( 'username', 'first-name', 'last-name', 'title', 'email', 'phone', 'office-room-number', 'building' ) as $f ) {
 				register_rest_field( 
 					'employee', 
 					sprintf( 'employee_%s', $f ), 
@@ -115,6 +115,32 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 					)
 				);
 			}
+			
+			foreach ( array( 'department', 'employee', 'empdept-rel-last-name', 'empdept-rel-first-name' ) as $field ) {
+				register_rest_field( 
+					'office', 
+					sprintf( 'office_%s', $field ), 
+					array( 
+						'get_callback'    => array( $this, 'get_types_field' ), 
+						'update_callback' => array( $this, 'update_types_field' ), 
+						'schema'          => null, 
+					)
+				);
+			}
+			
+			add_filter( 'is_protected_meta', array( $this, 'unprotect_meta' ), 10, 3 );
+		}
+		
+		/**
+		 * Attempt to whitelist the "protected meta" fields that need to be
+		 * 		updatable through the API
+		 */
+		function unprotect_meta( $protected, $key, $type ) {
+			if ( in_array( $key, array( '_wpcf_belongs_employee_id', '_wpcf_belongs_department_id', '_wpcf_belongs_building_id' ) ) ) {
+				return false;
+			}
+			
+			return $protected;
 		}
 		
 		/**
@@ -219,6 +245,21 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 * Retrieve the value of a custom field
 		 */
 		function get_types_field( $object, $field_name, $request ) {
+			switch( $field_name ) {
+				case 'office_employee' : 
+					$field_name = '_wpcf_belongs_employee_id';
+					break;
+				case 'office_department' : 
+					$field_name = '_wpcf_belongs_department_id';
+					break;
+				case 'employee_building' : 
+					$field_name = '_wpcf_belongs_building_id'; 
+					break;
+				default : 
+					$field_name = str_replace( array( 'employee_', 'office_' ), 'wpcf-', $field_name );
+					break;
+			}
+				
 			return get_post_meta( $object[ 'id' ], $field_name );
 		}
 		
@@ -230,8 +271,18 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 				return;
 			}
 			
-			$field_name = str_replace( 'employee_', 'wpcf-', $field_name );
-			
+			switch( $field_name ) {
+				case 'office_employee' : 
+					$field_name = '_wpcf_belongs_employee_id';
+					break;
+				case 'office_department' : 
+					$field_name = '_wpcf_belongs_department_id';
+					break;
+				default : 
+					$field_name = str_replace( array( 'employee_', 'office_' ), 'wpcf-', $field_name );
+					break;
+			}
+						
 			return update_post_meta( $object->ID, $field_name, strip_tags( $value ) );
 		}
 		
