@@ -11,7 +11,7 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			 */
 			$this->is_directory_site();
 			
-			$this->setup_rest_classes();
+			add_action( 'rest_api_init', array( $this, 'setup_rest_classes' ) );
 			
 			/**
 			 * Set up our shortcode
@@ -22,8 +22,8 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			/**
 			 * These seem to do nothing at all yet.
 			 */
-			add_filter( 'rest_public_meta_keys', array( $this, 'whitelist_advisory_metadata' ) );
-			add_filter( 'rest_api_allowed_public_metadata', array( $this, 'whitelist_advisory_metadata' ) );
+			/*add_filter( 'rest_public_meta_keys', array( $this, 'whitelist_advisory_metadata' ) );
+			add_filter( 'rest_api_allowed_public_metadata', array( $this, 'whitelist_advisory_metadata' ) );*/
 		}
 		
 		function _add_extra_api_post_type_arguments() {
@@ -104,15 +104,17 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 * Register the custom field API endpoints
 		 */
 		function register_rest_fields() {
-			register_rest_field( 
-				'employee', 
-				'wpcf-username', 
-				array( 
-					'get_callback'    => array( $this, 'get_types_field' ), 
-					'update_callback' => array( $this, 'update_types_field' ), 
-					'schema'          => null,
-				)
-			);
+			foreach ( array( 'username', 'first-name', 'last-name', 'title', 'email', 'phone', 'office-room-number' ) as $f ) {
+				register_rest_field( 
+					'employee', 
+					sprintf( 'employee_%s', $f ), 
+					array( 
+						'get_callback'    => array( $this, 'get_types_field' ), 
+						'update_callback' => array( $this, 'update_types_field' ), 
+						'schema'          => null,
+					)
+				);
+			}
 		}
 		
 		/**
@@ -227,6 +229,8 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			if ( ! $value || ! is_string( $value ) ) {
 				return;
 			}
+			
+			$field_name = str_replace( 'employee_', 'wpcf-', $field_name );
 			
 			return update_post_meta( $object->ID, $field_name, strip_tags( $value ) );
 		}
