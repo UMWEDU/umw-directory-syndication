@@ -29,7 +29,7 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		function _add_extra_api_post_type_arguments() {
 			global $wp_post_types;
 			
-			foreach ( array( 'employee', 'building', 'department' ) as $post_type ) {
+			foreach ( array( 'employee', 'building', 'department', 'office' ) as $post_type ) {
 				if ( ! array_key_exists( $post_type, $wp_post_types ) )
 					continue;
 				

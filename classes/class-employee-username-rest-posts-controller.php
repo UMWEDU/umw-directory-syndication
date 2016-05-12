@@ -42,6 +42,7 @@ if ( ! class_exists( 'Employee_Username_REST_Posts_Controller' ) ) {
 		 * Set up a proper REST response from the data we gathered
 		 */
 		protected function create_response( $request, $args, $data ) {
+			$data = array_values( $data );
 			$response    = rest_ensure_response( $data );
 			$count_query = new \WP_Query();
 			unset( $args['paged'] );
@@ -87,15 +88,11 @@ if ( ! class_exists( 'Employee_Username_REST_Posts_Controller' ) ) {
 			$posts_query  = new \WP_Query();
 			$query_result = $posts_query->query( $args );
 			
-			$employee = null;
-			if ( ! empty( $query_result ) ) {
-				$employee = array_shift( $query_result );
+			$data = array();
+			
+			foreach ( $query_result as $employee ) {
+				$data = $this->make_data( $employee, $data );
 			}
-			
-			if ( empty( $employee ) )
-				return null;
-			
-			$data = $this->make_data( $employee, $data );
 			
 			$final =  $this->create_response( $request, $args, $data );
 			return $final;
@@ -116,6 +113,7 @@ if ( ! class_exists( 'Employee_Username_REST_Posts_Controller' ) ) {
 			}
 			
 			$data[ $post->ID ] = array(
+				'id'           => $post->ID, 
 				'name'         => $post->post_title,
 				'link'         => get_permalink( $post->ID ),
 				'image_markup' => get_the_post_thumbnail( $post->ID, 'large' ),
