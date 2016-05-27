@@ -23,7 +23,7 @@ There are three different ways you can retrieve individual employees.
 
 **By Username**
 
-If you have the employee's SAM Account Name (Banner/AD username), you can retrieve information about the employee by using a URL in the structure of `/wp-json/wp/v2/employee/username/`
+If you have the employee's NetID, you can retrieve information about the employee by using a URL in the structure of `/wp-json/wp/v2/employee/username/[username]` (where you replace `[username]` with the user's NetID)
 
 _This is a route that is registered and set up through this plugin._
 
