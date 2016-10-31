@@ -179,7 +179,7 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 * Set up the API procedures for the directory site
 		 */
 		function setup_directory_site() {
-			add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+			add_action( 'rest_api_init', array( $this, 'register_routes' ), 11 );
 		}
 		
 		/**
