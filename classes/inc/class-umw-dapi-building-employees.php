@@ -28,5 +28,7 @@ class UMW_DAPI_Building_Employees extends Types_Relationship_API {
 			'expertise'     => 'expertise', 
 			'relationship'  => 'relationship', 
 		);
+		
+		return array_merge( $taxes, $rt );
 	}
 }
