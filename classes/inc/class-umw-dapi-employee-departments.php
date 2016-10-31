@@ -15,4 +15,12 @@ class UMW_DAPI_Employee_Departments extends Types_Relationship_API {
 		
 		return $data;
 	}
+	
+	/**
+	 * Create an array of taxonomies that should be retrieved for the object
+	 * We currently have no taxonomies applied to departments, so nothing to return
+	 */
+	function add_taxonomies( $taxes=array(), $post ) {
+		return $taxes;
+	}
 }

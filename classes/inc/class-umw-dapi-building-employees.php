@@ -15,4 +15,18 @@ class UMW_DAPI_Building_Employees extends Types_Relationship_API {
 		
 		return $data;
 	}
+	
+	/**
+	 * Create an array of taxonomies that should be retrieved for the object
+	 */
+	function add_taxonomies( $taxes=array(), $post ) {
+		if ( $post->post_type != $this->child_type )
+			return $taxes;
+		
+		$rt = array(
+			'employee-type' => 'employee-type', 
+			'expertise'     => 'expertise', 
+			'relationship'  => 'relationship', 
+		);
+	}
 }
