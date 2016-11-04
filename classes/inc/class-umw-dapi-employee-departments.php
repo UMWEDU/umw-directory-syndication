@@ -3,7 +3,7 @@ class UMW_DAPI_Employee_Departments extends Types_Relationship_API {
 	function __construct() {
 		$this->route = 'employee/department';
 		$this->parent_type = 'employee';
-		$this->child_type = 'building';
+		$this->child_type = 'department';
 		$this->interim_type = 'office';
 		
 		parent::__construct();
