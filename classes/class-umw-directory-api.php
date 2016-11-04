@@ -278,6 +278,9 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 				case 'office_department' : 
 					$field_name = '_wpcf_belongs_department_id';
 					break;
+				case 'employee_building' : 
+					$field_name = '_wpcf_belongs_building_id'; 
+					break;
 				default : 
 					$field_name = str_replace( array( 'employee_', 'office_' ), 'wpcf-', $field_name );
 					break;
