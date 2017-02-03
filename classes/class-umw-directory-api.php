@@ -40,13 +40,12 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		}
 		
 		/**
-		 * Identify and register the necessary REST routes/classes
+		 * Identify and include the REST classes that are used by this plugin
 		 */
 		function gather_rest_classes() {
 			if ( ! class_exists( 'Types_Relationship_API' ) ) {
-				require_once( plugin_dir_path( dirname( dirname( __FILE__ ) ) ) . 'types-relationship-api/classes/class-types-relationship-api.php' );
+				require_once( plugin_dir_path( dirname( dirname( __FILE__ ) ) ) . '/types-relationship-api/classes/class-types-relationship-api.php' );
 			}
-			
 			$this->rest_classes = array(
 				'department-employees' => 'UMW_DAPI_Department_Employees', 
 				'building-employees'   => 'UMW_DAPI_Building_Employees', 
@@ -208,6 +207,8 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 * Execute the shortcode itself
 		 */
 		function do_shortcode( $atts=array() ) {
+			$this->gather_rest_classes();
+			
 			$atts = shortcode_atts( $this->get_defaults(), $atts, 'umw-directory' );
 			
 			if ( ! empty( $atts['department'] ) ) {
