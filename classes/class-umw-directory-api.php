@@ -5,6 +5,13 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		public $directory_url = null;
 		public $rest_classes  = array();
 		
+		/**
+		 * Build the UMW_Directory_API object
+		 *
+		 * @access public
+		 * @since  1.0.1
+		 * @return void
+		 */
 		function __construct() {
 			/**
 			 * Determine whether this is the main directory site or not
@@ -18,14 +25,36 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			 */
 			add_shortcode( 'umw-directory', array( $this, 'do_shortcode' ) );
 			add_action( 'init', array( $this, '_add_extra_api_post_type_arguments' ), 12 );
-			
-			/**
-			 * These seem to do nothing at all yet.
-			 */
-			/*add_filter( 'rest_public_meta_keys', array( $this, 'whitelist_advisory_metadata' ) );
-			add_filter( 'rest_api_allowed_public_metadata', array( $this, 'whitelist_advisory_metadata' ) );*/
 		}
 		
+		/**
+		 * Determine whether or not this is the main directory site
+		 * Set the URL for the main directory site, either way
+		 * If so, set up some API functions
+		 * @uses UMW_Directory_API::$is_directory
+		 * @uses UMW_Directory_API::$directory_url
+		 * @uses UMW_Directory_API::setup_directory_site()
+		 */
+		function is_directory_site() {
+			if ( defined( 'UMW_EMPLOYEE_DIRECTORY' ) && is_numeric( UMW_EMPLOYEE_DIRECTORY ) ) {
+				if ( UMW_EMPLOYEE_DIRECTORY == $GLOBALS['blog_id'] ) {
+					$this->is_directory = true;
+					$this->directory_url = esc_url( get_bloginfo( 'url' ) );
+					$this->setup_directory_site();
+				} else {
+					$this->is_directory = false;
+					$this->directory_url = esc_url( get_blog_option( UMW_EMPLOYEE_DIRECTORY, 'home' ) );
+				}
+			} else {
+				$this->is_directory = false;
+				$this->directory_url = esc_url( UMW_EMPLOYEE_DIRECTORY );
+			}
+		}
+		
+		/**
+		 * Ensure that the appropriate post types are exposed in the REST API on 
+		 * 		the directory site, regardless of how they're initially registered
+		 */
 		function _add_extra_api_post_type_arguments() {
 			global $wp_post_types;
 			
@@ -68,6 +97,9 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			$this->register_rest_fields();
 		}
 		
+		/**
+		 * Register a new REST route to retrieve a specific employee by username
+		 */
 		function register_rest_route_employee_by_username() {
 			require_once( plugin_dir_path( __FILE__ ) . 'class-employee-username-rest-posts-controller.php' );
 			
@@ -151,38 +183,6 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			}
 			
 			return $protected;
-		}
-		
-		/**
-		 * Attempt to whitelist some custom fields to be returned with API data
-		 */
-		function whitelist_advisory_metadata( $keys = array() ) {
-			$keys[] = 'wpcf-username';
-			return $keys;
-		}
-		
-		/**
-		 * Determine whether or not this is the main directory site
-		 * Set the URL for the main directory site, either way
-		 * If so, set up some API functions
-		 * @uses UMW_Directory_API::$is_directory
-		 * @uses UMW_Directory_API::$directory_url
-		 * @uses UMW_Directory_API::setup_directory_site()
-		 */
-		function is_directory_site() {
-			if ( defined( 'UMW_EMPLOYEE_DIRECTORY' ) && is_numeric( UMW_EMPLOYEE_DIRECTORY ) ) {
-				if ( UMW_EMPLOYEE_DIRECTORY == $GLOBALS['blog_id'] ) {
-					$this->is_directory = true;
-					$this->directory_url = esc_url( get_bloginfo( 'url' ) );
-					$this->setup_directory_site();
-				} else {
-					$this->is_directory = false;
-					$this->directory_url = esc_url( get_blog_option( UMW_EMPLOYEE_DIRECTORY, 'home' ) );
-				}
-			} else {
-				$this->is_directory = false;
-				$this->directory_url = esc_url( UMW_EMPLOYEE_DIRECTORY );
-			}
 		}
 		
 		/**
