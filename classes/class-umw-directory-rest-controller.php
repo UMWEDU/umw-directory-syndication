@@ -210,9 +210,12 @@ class UMW_Directory_Rest_Controller extends \WP_REST_Posts_Controller {
 		/**
 		 * General employee information
 		 */
-		$keys = array( 'blurb', 'email', 'phone', 'website', 'photo', 'room', 'username', 'biography' );
+		$keys = array( 'blurb', 'email', 'phone', 'website', 'photo', 'room', 'username', 'biography', 'first-name', 'last-name' );
 		$rt['job-title'] = get_post_meta( $post_id, '_wpcf_title', true );
 		foreach ( $keys as $key ) {
+			if ( 'room' == $key ) {
+				$rt[$key] = get_post_meta( $post_id, '_wpcf_office-room-number', true );
+			}
 			$rt[$key] = get_post_meta( $post_id, sprintf( '_wpcf_%s', $key ), true );
 		}
 		/**
@@ -247,6 +250,8 @@ class UMW_Directory_Rest_Controller extends \WP_REST_Posts_Controller {
 				case 'biography' : 
 				case 'username' : 
 				case 'degrees' : 
+				case 'first-name' : 
+				case 'last-name' : 
 					$rt[$k] = esc_attr( $v );
 					break;
 				case 'ph-d' : 
@@ -257,6 +262,8 @@ class UMW_Directory_Rest_Controller extends \WP_REST_Posts_Controller {
 					break;
 			}
 		}
+		
+		$rt['building'] = intval( get_post_meta( $post_id, sprintf( '_wpcf_belongs_building_id', true ) ) );
 		
 		return array_merge( $rt, $data[$post_id] );
 	}
