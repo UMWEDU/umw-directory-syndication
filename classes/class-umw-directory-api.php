@@ -40,9 +40,13 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		}
 		
 		/**
-		 * Register and include all of the REST classes we'll need
+		 * Identify and register the necessary REST routes/classes
 		 */
-		function setup_rest_classes() {
+		function gather_rest_classes() {
+			if ( ! class_exists( 'Types_Relationship_API' ) ) {
+				require_once( plugin_dir_path( dirname( dirname( __FILE__ ) ) ) . 'types-relationship-api/classes/class-types-relationship-api.php' );
+			}
+			
 			$this->rest_classes = array(
 				'department-employees' => 'UMW_DAPI_Department_Employees', 
 				'building-employees'   => 'UMW_DAPI_Building_Employees', 
@@ -54,6 +58,13 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 					require_once( plugin_dir_path( __FILE__ ) . '/inc/class-' . strtolower( str_replace( '_', '-', $c ) ) . '.php' );
 				$this->rest_classes[$k] = new $c;
 			}
+		}
+		
+		/**
+		 * Register and include all of the REST classes we'll need
+		 */
+		function setup_rest_classes() {
+			$this->gather_rest_classes();
 			
 			$this->register_rest_fields();
 		}
