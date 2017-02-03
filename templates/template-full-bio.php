@@ -54,7 +54,7 @@
 		}
 	}
 	if ( ! empty( $employee->academia ) ) {
-		$links['academia'] = sprintf( '<a id="academia-button" href="[types field='academia' output='raw'][/types]">Follow me on Academia.edu</a><script src="//a.academia-assets.com/javascripts/social.js"></script>' );
+		$links['academia'] = sprintf( '<a id="academia-button" href="%1$s">Follow me on Academia.edu</a><script src="//a.academia-assets.com/javascripts/social.js"></script>', $employee->academia );
 	}
 ?>
 </div>
@@ -87,8 +87,8 @@
 <?php
 		}
 ?>
-  	<a id="userMoreNews" href="http://eagleeye.umw.edu/tag/[types field="username"][/types]/">
-  		Read more about [types field="first-name"][/types] [types field="last-name"][/types]
+  	<a id="userMoreNews" href="http://eagleeye.umw.edu/tag/<?php echo $employee->username ?>/">
+  		Read more about <?php echo $employee->{'first-name'} ?> <?php echo $employee->{'last-name'} ?>
   	</a>.
 </div>
 <?php
