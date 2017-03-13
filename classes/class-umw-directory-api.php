@@ -1,8 +1,24 @@
 <?php
+/**
+ * Implements the main API class for the UMW Directory Syndication
+ *
+ * @package    wordpress
+ * @subpackage umw-directory-syndication
+ * @version    1.2
+ */
 if ( ! class_exists( 'UMW_Directory_API' ) ) {
 	class UMW_Directory_API {
+		/**
+		 * @var bool whether this code is being executed on the main directory site or not
+		 */
 		public $is_directory  = false;
+		/**
+		 * @var null|string the URL for the main directory site
+		 */
 		public $directory_url = null;
+		/**
+		 * @var Types_Relationship_API[] the array of extended Types_Relationship_API classes that are used by this plugin
+		 */
 		public $rest_classes  = array();
 		
 		/**
@@ -10,7 +26,6 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 *
 		 * @access public
 		 * @since  1.0.1
-		 * @return void
 		 */
 		function __construct() {
 			/**
@@ -46,6 +61,9 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 					$this->directory_url = esc_url( get_blog_option( UMW_EMPLOYEE_DIRECTORY, 'home' ) );
 				}
 			} else {
+				if ( ! defined( 'UMW_EMPLOYEE_DIRECTORY' ) ) {
+					define( 'UMW_EMPLOYEE_DIRECTORY', 'https://www.umw.edu/directory' );
+				}
 				$this->is_directory = false;
 				$this->directory_url = esc_url( UMW_EMPLOYEE_DIRECTORY );
 			}
@@ -176,6 +194,14 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		/**
 		 * Attempt to whitelist the "protected meta" fields that need to be
 		 * 		updatable through the API
+		 *
+		 * @param  bool $protected whether or not the meta value is a protected field
+		 * @param  string $key the meta key to query
+		 * @param  string $type unused
+		 *
+		 * @access public
+		 * @since  1.0
+		 * @return bool whether the key should be protected or not
 		 */
 		function unprotect_meta( $protected, $key, $type ) {
 			if ( in_array( $key, array( '_wpcf_belongs_employee_id', '_wpcf_belongs_department_id', '_wpcf_belongs_building_id' ) ) ) {
