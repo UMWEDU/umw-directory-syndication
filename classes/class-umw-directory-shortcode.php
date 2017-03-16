@@ -54,7 +54,7 @@ if ( ! class_exists( 'UMW_Directory_Shortcode' ) ) {
          */
         protected function __construct() {
             if ( ! class_exists( 'UMW_Directory_API' ) ) {
-                require_once plugin_dir_path( __FILE__ ) . '/class-umw-directory-shortcode.php';
+                require_once plugin_dir_path( __FILE__ ) . '/class-umw-directory-api.php';
             }
 
             $this->api_object = UMW_Directory_API::instance();
