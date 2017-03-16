@@ -20,8 +20,29 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 * @var Types_Relationship_API[] the array of extended Types_Relationship_API classes that are used by this plugin
 		 */
 		public $rest_classes  = array();
-		
-		/**
+        /**
+         * @var UMW_Directory_API the single instance of this object
+         * @access private
+         */
+        private static $instance;
+
+        /**
+         * Returns the instance of this class.
+         *
+         * @access  public
+         * @since   1.0.0
+         * @return	UMW_Directory_API
+         */
+        public static function instance() {
+            if ( ! isset( self::$instance ) ) {
+                $className = __CLASS__;
+                self::$instance = new $className;
+            }
+
+            return self::$instance;
+        }
+
+        /**
 		 * Build the UMW_Directory_API object
 		 *
 		 * @access public
@@ -38,7 +59,6 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			/**
 			 * Set up our shortcode
 			 */
-			add_shortcode( 'umw-directory', array( $this, 'do_shortcode' ) );
 			add_action( 'init', array( $this, '_add_extra_api_post_type_arguments' ), 12 );
 		}
 		
@@ -228,59 +248,12 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			
 			$this->register_rest_route_employee_by_username();
 		}
-		
-		/**
-		 * Execute the shortcode itself
-		 */
-		function do_shortcode( $atts=array() ) {
-			$this->gather_rest_classes();
-			
-			$atts = shortcode_atts( $this->get_defaults(), $atts, 'umw-directory' );
-			
-			if ( ! empty( $atts['department'] ) ) {
-				$rest_class = $this->rest_classes['department-employees'];
-				
-				$url = untrailingslashit( $this->directory_url ) . $rest_class->get_rest_url();
-				if ( ! is_numeric( $atts['department'] ) ) {
-					$url = add_query_arg( array(
-						'slug' => $atts['department'], 
-						'per_page'  => 200, 
-					), $url );
-				} else {
-					$url .= '/' . intval( $atts['department'] );
-					$url = add_query_arg( 'per_page', 200, $url );
-				}
-				
-				print( '<pre><code>' );
-				var_dump( $url );
-				print( '</code></pre>' );
-				
-				$employees = @json_decode( wp_remote_retrieve_body( wp_remote_request( $url ) ) );
-				ob_start();
-				print( '<pre><code>' );
-				var_dump( $employees );
-				print( '</code></pre>' );
-				return ob_get_clean();
-			} else if ( ! empty( $atts['building'] ) ) {
-				$rest_class = $this->rest_classes['building-employees'];
-				
-				$url = untrailingslashit( $this->directory_url ) . $rest_class->get_rest_url();
-				$url = add_query_arg( array( 
-					'parent' => $atts['building'], 
-					'per_page'  => 200, 
-				), $url );
-				
-				$employees = @json_decode( wp_remote_request( $url ) );
-				ob_start();
-				print( '<pre><code>' );
-				var_dump( $employees );
-				print( '</code></pre>' );
-				return ob_get_clean();
-			}
-		}
-		
+
 		/**
 		 * Retrieve the value of a custom field
+         * @param WP_Post $object the current post being queried
+         * @param string $field_name the name of the field to be retrieved
+         * @param unused $request an unused parameter
 		 */
 		function get_types_field( $object, $field_name, $request ) {
 			switch( $field_name ) {
@@ -303,10 +276,19 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		
 		/**
 		 * Update/set the value of a custom field
+         * @param mixed $value the value to save for the custom field
+         * @param WP_Post $object the current post being updated
+         * @param string $field_name the name of the field being updated
+         *
+         * @uses update_post_meta()
+         *
+         * @access  public
+         * @since   1.0.0
+         * @return  mixed the results of update_post_meta()
 		 */
 		function update_types_field( $value, $object, $field_name ) {
 			if ( ! $value || ! is_string( $value ) ) {
-				return;
+				return false;
 			}
 			
 			switch( $field_name ) {
@@ -325,18 +307,6 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			}
 						
 			return update_post_meta( $object->ID, $field_name, strip_tags( $value ) );
-		}
-		
-		/**
-		 * Retrieve the default shortcode parameters
-		 */
-		function get_defaults() {
-			return array(
-				'type'       => 'summary', 
-				'department' => null, 
-				'building'   => null, 
-				'username'   => null, 
-			);
 		}
 	}
 }

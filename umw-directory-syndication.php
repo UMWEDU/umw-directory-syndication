@@ -10,9 +10,9 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 add_action( 'plugins_loaded', 'inst_umw_directory_shortcode' );
 function inst_umw_directory_shortcode() {
-	if ( ! class_exists( 'UMW_Directory_API' ) ) {
-		require_once( plugin_dir_path( __FILE__ ) . '/classes/class-umw-directory-api.php' );
+	if ( ! class_exists( 'UMW_Directory_Shortcode' ) ) {
+		require_once( plugin_dir_path( __FILE__ ) . '/classes/class-umw-directory-shortcode.php' );
 	}
 	global $umw_directory_shortcode_obj;
-	$umw_directory_shortcode_obj = new UMW_Directory_API;
+	$umw_directory_shortcode_obj = UMW_Directory_Shortcode::instance();
 }
