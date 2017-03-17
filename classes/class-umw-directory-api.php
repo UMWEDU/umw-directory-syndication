@@ -20,29 +20,29 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 * @var Types_Relationship_API[] the array of extended Types_Relationship_API classes that are used by this plugin
 		 */
 		public $rest_classes  = array();
-        /**
-         * @var UMW_Directory_API the single instance of this object
-         * @access private
-         */
-        private static $instance;
+		/**
+		 * @var UMW_Directory_API the single instance of this object
+		 * @access private
+		 */
+		private static $instance;
 
-        /**
-         * Returns the instance of this class.
-         *
-         * @access  public
-         * @since   1.0.0
-         * @return	UMW_Directory_API
-         */
-        public static function instance() {
-            if ( ! isset( self::$instance ) ) {
-                $className = __CLASS__;
-                self::$instance = new $className;
-            }
+		/**
+		 * Returns the instance of this class.
+		 *
+		 * @access  public
+		 * @since   1.0.0
+		 * @return	UMW_Directory_API
+		 */
+		public static function instance() {
+			if ( ! isset( self::$instance ) ) {
+				$className = __CLASS__;
+				self::$instance = new $className;
+			}
 
-            return self::$instance;
-        }
+			return self::$instance;
+		}
 
-        /**
+		/**
 		 * Build the UMW_Directory_API object
 		 *
 		 * @access public
@@ -251,9 +251,9 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 
 		/**
 		 * Retrieve the value of a custom field
-         * @param WP_Post $object the current post being queried
-         * @param string $field_name the name of the field to be retrieved
-         * @param unused $request an unused parameter
+		 * @param WP_Post $object the current post being queried
+		 * @param string $field_name the name of the field to be retrieved
+		 * @param unused $request an unused parameter
 		 */
 		function get_types_field( $object, $field_name, $request ) {
 			switch( $field_name ) {
@@ -276,15 +276,15 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		
 		/**
 		 * Update/set the value of a custom field
-         * @param mixed $value the value to save for the custom field
-         * @param WP_Post $object the current post being updated
-         * @param string $field_name the name of the field being updated
-         *
-         * @uses update_post_meta()
-         *
-         * @access  public
-         * @since   1.0.0
-         * @return  mixed the results of update_post_meta()
+		 * @param mixed $value the value to save for the custom field
+		 * @param WP_Post $object the current post being updated
+		 * @param string $field_name the name of the field being updated
+		 *
+		 * @uses update_post_meta()
+		 *
+		 * @access  public
+		 * @since   1.0.0
+		 * @return  mixed the results of update_post_meta()
 		 */
 		function update_types_field( $value, $object, $field_name ) {
 			if ( ! $value || ! is_string( $value ) ) {
