@@ -74,7 +74,7 @@ if ( ! class_exists( 'UMW_Directory_Shortcode' ) ) {
 		 * @return array()
 		 */
 		public function enable_teeny_editor( $settings=array(), $editor_id=null ) {
-			$editors = apply_filters( 'directory-api-teeny-fields', array( 'wpcf-biography' ) );
+			$editors = apply_filters( 'directory-api-teeny-fields', array( 'wpcf-biography', 'wpcf-expert-publications' ) );
 			if ( ! in_array( $editor_id, $editors ) ) {
 				return $settings;
 			}
