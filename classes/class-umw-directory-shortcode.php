@@ -60,6 +60,29 @@ if ( ! class_exists( 'UMW_Directory_Shortcode' ) ) {
 			$this->api_object = UMW_Directory_API::instance();
 
 			add_shortcode( 'umw-directory', array( $this, 'do_shortcode' ) );
+			
+			add_filter( 'wp_editor_settings', array( $this, 'enable_teeny_editor' ), 99, 2 );
+		}
+		
+		/**
+		 * Enables the TeenyMCE editor for specific fields
+		 * @param array $settings the settings sent to the editor
+		 * @param string $editor_id the HTML ID of the editor being modified
+		 *
+		 * @access public
+		 * @since  1.1
+		 * @return array()
+		 */
+		public function enable_teeny_editor( $settings=array(), $editor_id=null ) {
+			$editors = apply_filters( 'directory-api-teeny-fields', array( 'wpcf-biography' ) );
+			if ( ! in_array( $editor_id, $editors ) ) {
+				return $settings;
+			}
+			
+			$settings['teeny'] = true;
+			$settings['media_buttons'] = false;
+			
+			return $settings;
 		}
 
 		/**
