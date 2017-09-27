@@ -60,6 +60,8 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			 * Set up our shortcode
 			 */
 			add_action( 'init', array( $this, '_add_extra_api_post_type_arguments' ), 12 );
+			
+			$this->maybe_bypass_cas();
 		}
 		
 		/**
@@ -87,6 +89,20 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 				$this->is_directory = false;
 				$this->directory_url = esc_url( UMW_EMPLOYEE_DIRECTORY );
 			}
+		}
+		
+		/**
+		 * Attempt to bypass CAS authentication when hitting the API
+		 *
+		 * @access private
+		 * @since  0.1
+		 * @return void
+		 */
+		private function maybe_bypass_cas() {
+			if ( isset( $_SERVER['PHP_AUTH_USER'] ) && ! defined( 'WPCAS_BYPASS' ) )
+				define( 'WPCAS_BYPASS', true );
+			
+			return;
 		}
 		
 		/**
