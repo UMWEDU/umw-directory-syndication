@@ -52,16 +52,22 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			/**
 			 * Determine whether this is the main directory site or not
 			 */
-			$this->is_directory_site();
-			
+			add_action( 'setup_theme', array( $this, 'is_directory_site' ) );
+
+			/**
+			 * Determine whether we should be bypassing the CAS authentication system
+			 */
+			add_action( 'setup_theme', array( $this, 'maybe_bypass_cas' ) );
+
+			/**
+			 * Register all of the appropriate REST API features
+			 */
 			add_action( 'rest_api_init', array( $this, 'setup_rest_classes' ) );
 			
 			/**
 			 * Set up our shortcode
 			 */
 			add_action( 'init', array( $this, '_add_extra_api_post_type_arguments' ), 12 );
-			
-			$this->maybe_bypass_cas();
 		}
 		
 		/**
