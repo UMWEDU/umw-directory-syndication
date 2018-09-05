@@ -184,7 +184,7 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 * Register the custom field API endpoints
 		 */
 		function register_rest_fields() {
-			foreach ( array( 'username', 'first-name', 'last-name', 'title', 'email', 'phone', 'office-room-number', 'building' ) as $f ) {
+			foreach ( array( 'username', 'first-name', 'last-name', 'title', 'email', 'phone', 'office-room-number', 'building', 'department' ) as $f ) {
 				register_rest_field( 
 					'employee', 
 					sprintf( 'employee_%s', $f ), 
@@ -260,13 +260,18 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 				case 'office_employee' : 
 					$field_name = '_wpcf_belongs_employee_id';
 					break;
-				case 'office_department' : 
+				case 'office_department' :
 					$field_name = '_wpcf_belongs_department_id';
 					break;
 				case 'employee_building' : 
 					$field_name = '_wpcf_belongs_building_id'; 
 					break;
-				default : 
+				case 'employee_department' :
+					global $wpdb;
+					$office = $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key=%s AND meta_value=%d", '_wpcf_belongs_employee_id', $object['id'] ) );
+					return get_post_meta( $office, '_wpcf_belongs_department_id' );
+					break;
+				default :
 					$field_name = str_replace( array( 'employee_', 'office_' ), 'wpcf-', $field_name );
 					break;
 			}
