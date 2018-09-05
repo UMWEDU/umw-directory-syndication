@@ -52,8 +52,16 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 			/**
 			 * Determine whether this is the main directory site or not
 			 */
-			$this->is_directory_site();
-			
+			add_action( 'setup_theme', array( $this, 'is_directory_site' ) );
+
+			/**
+			 * Determine whether we should be bypassing the CAS authentication system
+			 */
+			add_action( 'setup_theme', array( $this, 'maybe_bypass_cas' ) );
+
+			/**
+			 * Register all of the appropriate REST API features
+			 */
 			add_action( 'rest_api_init', array( $this, 'setup_rest_classes' ) );
 			
 			/**
@@ -87,6 +95,20 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 				$this->is_directory = false;
 				$this->directory_url = esc_url( UMW_EMPLOYEE_DIRECTORY );
 			}
+		}
+		
+		/**
+		 * Attempt to bypass CAS authentication when hitting the API
+		 *
+		 * @access private
+		 * @since  0.1
+		 * @return void
+		 */
+		private function maybe_bypass_cas() {
+			if ( isset( $_SERVER['PHP_AUTH_USER'] ) && ! defined( 'WPCAS_BYPASS' ) )
+				define( 'WPCAS_BYPASS', true );
+			
+			return;
 		}
 		
 		/**

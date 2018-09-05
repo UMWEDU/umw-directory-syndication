@@ -53,6 +53,17 @@ if ( ! class_exists( 'UMW_Directory_Shortcode' ) ) {
 		 * @since  1.0
 		 */
 		protected function __construct() {
+			add_action( 'plugins_loaded', array( $this, 'load' ) );
+		}
+
+		/**
+		 * Perform any startup tasks that need to happen for this plugin
+		 *
+		 * @access public
+		 * @since  1.2
+		 * @return void
+		 */
+		public function load() {
 			if ( ! class_exists( 'UMW_Directory_API' ) ) {
 				require_once plugin_dir_path( __FILE__ ) . '/class-umw-directory-api.php';
 			}
@@ -60,7 +71,7 @@ if ( ! class_exists( 'UMW_Directory_Shortcode' ) ) {
 			$this->api_object = UMW_Directory_API::instance();
 
 			add_shortcode( 'umw-directory', array( $this, 'do_shortcode' ) );
-			
+
 			add_filter( 'wp_editor_settings', array( $this, 'enable_teeny_editor' ), 99, 2 );
 		}
 		
