@@ -53,7 +53,6 @@ if ( ! class_exists( 'UMW_Directory_Shortcode' ) ) {
 		 * @since  1.0
 		 */
 		protected function __construct() {
-			error_log( '[Directory Debug]: Constructing the UMW Directory Shortcode object' );
 			add_action( 'plugins_loaded', array( $this, 'load' ) );
 		}
 
@@ -65,7 +64,6 @@ if ( ! class_exists( 'UMW_Directory_Shortcode' ) ) {
 		 * @return void
 		 */
 		public function load() {
-			error_log( 'Entered the load method for UMW Directory Shortcode' );
 			if ( ! class_exists( 'UMW_Directory_API' ) ) {
 				require_once plugin_dir_path( __FILE__ ) . '/class-umw-directory-api.php';
 			}
