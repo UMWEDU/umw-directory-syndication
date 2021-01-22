@@ -65,9 +65,7 @@ if ( ! class_exists( 'UMW_Directory_Shortcode' ) ) {
 		 * @return void
 		 */
 		public function load() {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'Entered the load method for UMW Directory Shortcode' );
-			}
+			error_log( 'Entered the load method for UMW Directory Shortcode' );
 			if ( ! class_exists( 'UMW_Directory_API' ) ) {
 				require_once plugin_dir_path( __FILE__ ) . '/class-umw-directory-api.php';
 			}
