@@ -64,6 +64,9 @@ if ( ! class_exists( 'UMW_Directory_Shortcode' ) ) {
 		 * @return void
 		 */
 		public function load() {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Entered the load method for UMW Directory Shortcode' );
+			}
 			if ( ! class_exists( 'UMW_Directory_API' ) ) {
 				require_once plugin_dir_path( __FILE__ ) . '/class-umw-directory-api.php';
 			}
@@ -74,7 +77,7 @@ if ( ! class_exists( 'UMW_Directory_Shortcode' ) ) {
 
 			add_filter( 'wp_editor_settings', array( $this, 'enable_teeny_editor' ), 99, 2 );
 		}
-		
+
 		/**
 		 * Enables the TeenyMCE editor for specific fields
 		 * @param array $settings the settings sent to the editor
@@ -89,10 +92,10 @@ if ( ! class_exists( 'UMW_Directory_Shortcode' ) ) {
 			if ( ! in_array( $editor_id, $editors ) ) {
 				return $settings;
 			}
-			
+
 			$settings['teeny'] = true;
 			$settings['media_buttons'] = false;
-			
+
 			return $settings;
 		}
 
