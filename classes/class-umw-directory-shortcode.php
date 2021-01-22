@@ -53,6 +53,7 @@ if ( ! class_exists( 'UMW_Directory_Shortcode' ) ) {
 		 * @since  1.0
 		 */
 		protected function __construct() {
+			error_log( '[Directory Debug]: Constructing the UMW Directory Shortcode object' );
 			add_action( 'plugins_loaded', array( $this, 'load' ) );
 		}
 

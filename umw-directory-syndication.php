@@ -2,7 +2,7 @@
 /*
 Plugin Name: UMW Directory Syndication
 Description: Utilizes the REST API to syndicate UMW directory information
-Version:     0.1
+Version:     0.1.1
 Author:      Curtiss Grymala
 License:     GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
