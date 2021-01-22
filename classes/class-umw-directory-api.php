@@ -49,6 +49,10 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 * @since  1.0.1
 		 */
 		function __construct() {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( '[Directory Debug]: Entered the constructor for the UMW_Directory_API class' );
+			}
+
 			/**
 			 * Determine whether this is the main directory site or not
 			 */
