@@ -78,7 +78,7 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 * @uses UMW_Directory_API::$directory_url
 		 * @uses UMW_Directory_API::setup_directory_site()
 		 */
-		function is_directory_site() {
+		public function is_directory_site() {
 			if ( defined( 'UMW_EMPLOYEE_DIRECTORY' ) && is_numeric( UMW_EMPLOYEE_DIRECTORY ) ) {
 				if ( UMW_EMPLOYEE_DIRECTORY == $GLOBALS['blog_id'] ) {
 					$this->is_directory = true;
@@ -100,11 +100,11 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		/**
 		 * Attempt to bypass CAS authentication when hitting the API
 		 *
-		 * @access private
+		 * @access public
 		 * @since  0.1
 		 * @return void
 		 */
-		private function maybe_bypass_cas() {
+		public function maybe_bypass_cas() {
 			if ( isset( $_SERVER['PHP_AUTH_USER'] ) && ! defined( 'WPCAS_BYPASS' ) )
 				define( 'WPCAS_BYPASS', true );
 
@@ -115,7 +115,7 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 * Ensure that the appropriate post types are exposed in the REST API on
 		 * 		the directory site, regardless of how they're initially registered
 		 */
-		function _add_extra_api_post_type_arguments() {
+		public function _add_extra_api_post_type_arguments() {
 			global $wp_post_types;
 
 			foreach ( array( 'employee', 'building', 'department', 'office' ) as $post_type ) {
@@ -151,7 +151,7 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		/**
 		 * Register and include all of the REST classes we'll need
 		 */
-		function setup_rest_classes() {
+		public function setup_rest_classes() {
 			$this->gather_rest_classes();
 
 			$this->register_rest_fields();
