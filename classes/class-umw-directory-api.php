@@ -264,9 +264,6 @@ if ( ! class_exists( 'UMW_Directory_API' ) ) {
 		 * Call the appropriate method to register the necessary REST API routes
 		 */
 		function register_routes() {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( '[UMW Directory Debug]: Registered routes: ' . print_r( $this->rest_classes, true ) );
-			}
 			foreach ( $this->rest_classes as $c ) {
 				$c->register_routes();
 			}
